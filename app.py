@@ -83,8 +83,8 @@ def venues():
         # iterate through venues and create a list for each venue
         for venue in venues:
             # get the number of upcoming shows for each venue
-            upcoming_shows = Show.query.filter_by(venue_id=venue.id).filter(
-                Show.start_time > datetime.now()).count()
+            upcoming_shows = db.session.query(Show).join(Venue).filter(
+                Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all()
 
             # map the venue data to a dictionary and append to the list
             data.append({
@@ -123,7 +123,7 @@ def show_venue(venue_id):
     data = Venue.query.filter(Venue.id == venue_id).first()
 
     # get the upcoming shows for the venue
-    upcoming_shows = Show.query.filter_by(venue_id=venue_id).filter(
+    upcoming_shows = db.session.query(Show).join(Venue).filter(
         Show.venue_id == venue_id).filter(Show.start_time > datetime.now()).all()
 
     # if length of upcoming shows is greater than 0, get the artist for each show
@@ -143,8 +143,8 @@ def show_venue(venue_id):
 
             data.upcoming_shows = upcoming_shows_data
             data.upcoming_shows_count = len(upcoming_shows_data)
-        previous_shows = Show.query.filter_by(venue_id=venue_id).filter(
-            Show.start_time < datetime.now()).all()
+        previous_shows = db.session.query(Show).join(Artist).filter(
+            Show.venue_id == venue_id).filter(Show.start_time > datetime.now()).all()
 
         if previous_shows.count() > 0:
             previous_shows_data = []
@@ -290,7 +290,7 @@ def show_artist(artist_id):
     data = Artist.query.filter(Artist.id == artist_id).first()
 
     # get the upcoming shows for the venue
-    upcoming_shows = Show.query.filter_by(artist_id=artist_id).filter(
+    upcoming_shows = db.session.query(Show).join(Artist).filter(
         Show.artist_id == artist_id).filter(Show.start_time > datetime.now()).all()
 
     # if length of upcoming shows is greater than 0, get the artist for each show
@@ -311,8 +311,8 @@ def show_artist(artist_id):
 
             data.upcoming_shows = upcoming_shows_data
             data.upcoming_shows_count = len(upcoming_shows_data)
-        previous_shows = Show.query.filter_by(artist_id=artist_id).filter(
-            Show.start_time < datetime.now()).all()
+        previous_shows = db.session.query(Show).join(Venue).filter(
+            Show.artist_id == artist_id).filter(Show.start_time > datetime.now()).all()
 
         if previous_shows.count() > 0:
             previous_shows_data = []
